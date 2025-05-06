@@ -155,7 +155,7 @@ public class AppointmentController {
                     cvv
             );
             redirectAttributes.addFlashAttribute("successMessage",
-                    "Appointment booked and payment of $" + fee + " processed successfully!");
+                    "Appointment booked and payment of " + fee + " Lkr processed successfully!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Error booking appointment: " + e.getMessage());
@@ -224,8 +224,6 @@ public class AppointmentController {
         String email = auth.getName();
         Patient patient = patientService.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
-
-        // Get appointments and convert to DTOs with doctor names
         List<Appointment> appointments = appointmentService.getAppointmentsByPatient(patient.getPatientId());
         List<AppointmentAdminDTO> appointmentDTOs = appointments.stream()
                 .map(appointment -> {
