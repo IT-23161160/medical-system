@@ -1,5 +1,6 @@
 package com.medicalsystem.controller;
 
+import com.medicalsystem.dto.AppointmentAdminDTO;
 import com.medicalsystem.dto.AppointmentDTO;
 import com.medicalsystem.model.*;
 import com.medicalsystem.service.*;
@@ -223,9 +224,27 @@ public class AppointmentController {
         String email = auth.getName();
         Patient patient = patientService.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
+
+        // Get appointments and convert to DTOs with doctor names
         List<Appointment> appointments = appointmentService.getAppointmentsByPatient(patient.getPatientId());
+        List<AppointmentAdminDTO> appointmentDTOs = appointments.stream()
+                .map(appointment -> {
+                    Doctor doctor = doctorService.findById(appointment.getDoctorId())
+                            .orElseThrow(() -> new RuntimeException("Doctor not found"));
+                    return new AppointmentAdminDTO(
+                            appointment.getAppointmentId(),
+                            patient.getName(),
+                            doctor.getName(),
+                            appointment.getAppointmentTime(),
+                            appointment.getStatus(),
+                            appointment.getReason(),
+                            appointment.getUrgencyLevel()
+                    );
+                })
+                .collect(Collectors.toList());
+
         model.addAttribute("patient", patient);
-        model.addAttribute("appointments", appointments);
+        model.addAttribute("appointments", appointmentDTOs);
         return "appointment/patient_list";
     }
 
